@@ -14,12 +14,50 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+        "viewsContainers": {
+			"activitybar": [
+				{
+					"id": "prowjobs-explorer",
+					"title": "Prowjobs Explorer",
+					"icon": "media/dep.svg"
+				}
+			]
+		},
+		"views": {
+			"prowjobs-explorer": [
+				{
+					"id": "presubmit-jobs",
+					"name": "Presubmit Jobs"
+				},
+				{
+					"id": "postsubmit-jobs",
+					"name": "Postsubmit Jobs"
+				},
+				{
+					"id": "periodic-jobs",
+					"name": "Periodic Jobs"
+				}
+			]
+		},
 		"commands": [
 			{
 				"command": "extension.prowjobnoti",
-				"title": "Prow Job Notification"
+                "title": "Refresh",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
 			}
         ],
+        "menus": {
+			"view/title": [
+				{
+					"command": "extension.prowjobnoti",
+					"when": "view == presubmit-jobs",
+					"group": "navigation"
+				}
+			]
+		},
         "configuration": {
             "title": "Prow Jobs",
             "properties": {
