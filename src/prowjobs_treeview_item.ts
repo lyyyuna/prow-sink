@@ -1,16 +1,21 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 
-export class ProwjobItem extends vscode.TreeItem {
+export class ProwItem extends vscode.TreeItem {
 
-    children: ProwjobItem[]|undefined;
+    children: ProwItem[]|undefined;
 
-    constructor(label: string, children?: ProwjobItem[]) {
+    constructor(label: string, children?: ProwItem[]) {
       super(
           label,
           children === undefined ? vscode.TreeItemCollapsibleState.None :
                                    vscode.TreeItemCollapsibleState.Expanded);
       this.children = children;
     }
+
+    iconPath = {
+      light: path.join(__filename, '..', '..', 'resources', 'light', 'dependency.svg'),
+      dark: path.join(__filename, '..', '..', 'resources', 'dark', 'dependency.svg')
+    };
 
 }

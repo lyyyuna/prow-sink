@@ -1,6 +1,6 @@
-import * as superagent from 'superagent';
+import axios from 'axios';
+axios.defaults.timeout = 3000;
 import * as vscode from 'vscode';
-import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from 'constants';
 
 export class ProwJobs {
     private _enable: boolean = true;
@@ -21,6 +21,7 @@ export class ProwJobs {
         }
 
         let focusedJobs: string[] = vscode.workspace.getConfiguration().get('prowjobs.focusedJobs') || [];
+        focusedJobs = focusedJobs.map(item => item.trim())
         this._focusedJobs = new Set(focusedJobs)
 
         console.log("Prow notification turn: " + this._turnOnNotification);
@@ -28,103 +29,104 @@ export class ProwJobs {
         console.log("Prow focused jobs: " + this._focusedJobs);
     }
 
-    getLatestJobsStatus() {
+    async getLatestJobsStatus(): Promise<[Map<string, any>, Map<string, any>, Map<string, any>]> {
         console.log('Begin to get prow job status.')
         this.getConfigurations();
         let valid = /^(http|https):\/\/[^ "]+$/.test(this._serverUrl);
         if (valid == false) {
             vscode.window.showErrorMessage('Invalid deck server address: ' + this._serverUrl);
-            return 
+            return [new Map, new Map, new Map];
         }
         let uri = `${this._serverUrl}/prowjobs.js?var=allBuilds&omit=annotations,labels,decoration_config,pod_spec`;
 
-        superagent
-            .get(uri)
-            .timeout(4000)
-            .end((err, res) => {
-                let body: string = res.body.toString()
-                let indexOfBrace = body.indexOf('{')
-                let prowjobsStr = body.slice(indexOfBrace, -1)
-                let prowjobs: any[] = JSON.parse(prowjobsStr)?.items
-                
-                let total = prowjobs.length
-                console.log('Total prow jobs: ' + total)
-                
-                let presubmitTree = new Map;
-                let periodicTree = new Map;
-                let postsubmitTree = new Map;
-                for ( let i=0; i < prowjobs.length; i++ ) {
-                    let pj = prowjobs[i];
-                    if (this._focusedJobs.has(pj.spec?.job)) {
-                        let jobName = pj.spec?.job;
-                        const repo = pj.spec?.refs?.repo;
-                        // const state = pj.status?.state;
+        let presubmitTree = new Map;
+        let periodicTree = new Map;
+        let postsubmitTree = new Map;
+        try {
+            const res = await axios.get(uri, )
+            let body: string = res.data.toString()
+            let indexOfBrace = body.indexOf('{')
+            let prowjobsStr = body.slice(indexOfBrace, -1)
+            let prowjobs: any[] = JSON.parse(prowjobsStr)?.items
+            
+            let total = prowjobs.length
+            console.log('Total prow jobs: ' + total)
+            
+            for ( let i=0; i < prowjobs.length; i++ ) {
+                let pj = prowjobs[i];
+                if (this._focusedJobs.has(pj.spec?.job)) {
+                    let jobName = pj.spec?.job;
+                    const repo = pj.spec?.refs?.repo;
+                    // const state = pj.status?.state;
 
-                        switch (pj.spec?.type) {
-                            case 'presubmit': {
-                                const prNum = pj.spec?.refs?.pulls[0].number;
+                    switch (pj.spec?.type) {
+                        case 'presubmit': {
+                            const prNum = pj.spec?.refs?.pulls[0].number;
 
-                                if (presubmitTree.has(repo)) {
-                                    let reposDict: Map<string, any> = presubmitTree.get(repo)
-                                    if (reposDict.has(jobName)) {
-                                        let jobsDict: Map<string, any> = reposDict.get(jobName)
-                                        if (jobsDict.has(prNum)) {
-                                            return
-                                        } else {
-                                            jobsDict.set(prNum, pj)
-                                        }
+                            if (presubmitTree.has(repo)) {
+                                let reposDict: Map<string, any> = presubmitTree.get(repo)
+                                if (reposDict.has(jobName)) {
+                                    let jobsDict: Map<string, any> = reposDict.get(jobName)
+                                    if (jobsDict.has(prNum)) {
+                                        continue 
                                     } else {
-                                        let jobsDict = new Map;
                                         jobsDict.set(prNum, pj)
-                                        reposDict.set(jobName, jobsDict)
                                     }
                                 } else {
-                                    let reposDict = new Map;
                                     let jobsDict = new Map;
                                     jobsDict.set(prNum, pj)
                                     reposDict.set(jobName, jobsDict)
-                                    presubmitTree.set(repo, reposDict)
                                 }
-                                break;
+                            } else {
+                                let reposDict = new Map;
+                                let jobsDict = new Map;
+                                jobsDict.set(prNum, pj)
+                                reposDict.set(jobName, jobsDict)
+                                presubmitTree.set(repo, reposDict)
                             }
-
-                            case 'postsubmit': {
-                                if (postsubmitTree.has(repo)) {
-                                    let reposDict: Map<string, any> = postsubmitTree.get(repo)
-                                    if (reposDict.has(jobName)) {
-                                        let jobsArr: Array<any> = reposDict.get(jobName)
-                                        jobsArr.push(pj);
-                                    } else {
-                                        reposDict.set(jobName, [pj])
-                                    }
-                                } else {
-                                    let reposDict = new Map;
-                                    reposDict.set(jobName, [pj])
-                                    postsubmitTree.set(repo, reposDict); 
-                                }
-                                break;
-                            }
-
-                            case 'periodic': {
-                                if (periodicTree.has(repo)) {
-                                    let reposDict: Map<string, any> = periodicTree.get(repo)
-                                    if (reposDict.has(jobName)) {
-                                        let jobsArr: Array<any> = reposDict.get(jobName)
-                                        jobsArr.push(pj);
-                                    } else {
-                                        reposDict.set(jobName, [pj])
-                                    }
-                                } else {
-                                    let reposDicts = new Map;
-                                    reposDicts.set(jobName, [pj])
-                                    periodicTree.set(repo, reposDicts); 
-                                }
-                                break;
-                            }
+                            break;
                         }
-                    }                    
-                };
 
-            });
+                        case 'postsubmit': {
+                            if (postsubmitTree.has(repo)) {
+                                let reposDict: Map<string, any> = postsubmitTree.get(repo)
+                                if (reposDict.has(jobName)) {
+                                    let jobsArr: Array<any> = reposDict.get(jobName)
+                                    jobsArr.push(pj);
+                                } else {
+                                    reposDict.set(jobName, [pj])
+                                }
+                            } else {
+                                let reposDict = new Map;
+                                reposDict.set(jobName, [pj])
+                                postsubmitTree.set(repo, reposDict); 
+                            }
+                            break;
+                        }
+
+                        case 'periodic': {
+                            const repo = pj.spec?.extra_refs[0].repo;
+                            if (periodicTree.has(repo)) {
+                                let reposDict: Map<string, any> = periodicTree.get(repo)
+                                if (reposDict.has(jobName)) {
+                                    let jobsArr: Array<any> = reposDict.get(jobName)
+                                    jobsArr.push(pj);
+                                } else {
+                                    reposDict.set(jobName, [pj])
+                                }
+                            } else {
+                                let reposDict = new Map;
+                                reposDict.set(jobName, [pj])
+                                periodicTree.set(repo, reposDict); 
+                            }
+                            break;
+                        }
+                    }
+                }                    
+            };
+        } catch(err) {
+            console.error(err)
+        }
+        return [presubmitTree, postsubmitTree, periodicTree]
     }
 }
