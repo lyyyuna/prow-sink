@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { ProwItem } from './prowjobs_treeview_item';
-import { ProwJobs } from './prowjobs';
+import { ProwJobs, ProwJobState } from './prowjobs';
 
 export class ProwjobItemDataProvider implements vscode.TreeDataProvider<ProwItem> {
 
@@ -129,7 +129,12 @@ export class ProwjobItemDataProvider implements vscode.TreeDataProvider<ProwItem
 
     notification(jobs: Array<any>) {
         for (let pj of jobs) {
-            vscode.window.showInformationMessage( pj.spec?.job + ' ' + pj.status?.state);
+            let state = pj.status?.state;
+            let jobName = pj.spec?.job;
+            let startTime = pj.status?.startTime;
+            if (state != ProwJobState.PENDING) {
+                vscode.window.showInformationMessage( state + ' ' + jobName + '\n ' + startTime);
+            }
         }
     }
     
@@ -148,7 +153,7 @@ export class ProwjobItemDataProvider implements vscode.TreeDataProvider<ProwItem
             if (this.oldFocusedJobs.has(j)) {
                 continue
             }
-            diffJobs.push(j);
+            diffJobs.push(focusedJobs.get(j));
         }
         return diffJobs;
     }

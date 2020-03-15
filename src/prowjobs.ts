@@ -163,3 +163,11 @@ export class ProwJobs {
         return [presubmitTree, presubmitPRViewTree, postsubmitTree, periodicTree, allFocusedProwJobs]
     }
 }
+
+export enum ProwJobState {
+    SUCCESS = 'success',
+    PENDING = 'pending',
+    FAILED = 'failed',
+    ERROR = 'error',
+    ABORTED = 'aborted'
+}

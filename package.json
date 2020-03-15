@@ -33,7 +33,7 @@
 		},
 		"commands": [
 			{
-				"command": "extension.prowjobnoti",
+				"command": "extension.refresh",
 				"title": "Refresh",
 				"icon": {
 					"light": "resources/light/refresh.svg",
@@ -52,7 +52,7 @@
 		"menus": {
 			"view/title": [
 				{
-					"command": "extension.prowjobnoti",
+					"command": "extension.refresh",
 					"when": "view == prow-jobs",
 					"group": "navigation"
                 },
