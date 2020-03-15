@@ -39,12 +39,25 @@
 					"light": "resources/light/refresh.svg",
 					"dark": "resources/dark/refresh.svg"
 				}
-			}
+            },
+            {
+				"command": "extension.changeprview",
+				"title": "Change PR View",
+				"icon": {
+					"light": "resources/light/number.svg",
+					"dark": "resources/dark/number.svg"
+				}
+            }
 		],
 		"menus": {
 			"view/title": [
 				{
 					"command": "extension.prowjobnoti",
+					"when": "view == prow-jobs",
+					"group": "navigation"
+                },
+                {
+					"command": "extension.changeprview",
 					"when": "view == prow-jobs",
 					"group": "navigation"
 				}
@@ -53,15 +66,14 @@
 		"configuration": {
 			"title": "Prow Jobs",
 			"properties": {
-				"prowjobs.enable": {
-					"type": "boolean",
-					"default": true,
-					"description": "Enable this extensions"
-				},
-				"prowjobs.turnOnNotification": {
-					"type": "boolean",
-					"default": true,
-					"description": "Turn on notifications."
+				"prowjobs.focusedRepos": {
+					"type": "array",
+					"default": [],
+					"items": {
+						"type": "string"
+					},
+					"description": "Specify the repos you need to focus on, all the jobs belong to one focused repo will be shown"
+
 				},
 				"prowjobs.serverUrl": {
 					"type": "string",
