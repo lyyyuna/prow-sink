@@ -20,12 +20,26 @@ export class ProwjobItemDataProvider implements vscode.TreeDataProvider<ProwItem
 
 	constructor() {
         this.data = [];
-        this.timer = setInterval((function(self) {         
-            return function() {   
-                self.refresh(); 
-            }
-        })(this), 15000); // 20 seconds
-	}
+        this.timer = null;
+    }
+    
+    startQueringLoop() {
+        if (this.timer == null) {
+            this.timer = setInterval((function(self) {         
+                return function() {   
+                    self.refresh(); 
+                }
+            })(this), 20000); // 20 seconds
+        }
+    }
+
+    stopQueryingLoop() {
+        if (this.timer == null) {
+            return;
+        }
+        clearInterval(this.timer);
+        this.timer = null;
+    }
 
 	async refresh() {
         // reset
@@ -120,11 +134,11 @@ export class ProwjobItemDataProvider implements vscode.TreeDataProvider<ProwItem
 
     switchNofication(statusBar: any) {
         if (this.timerFlag != false) {
-            this.timerFlag = true;
+            this.timerFlag = false;
             statusBar.text = 'Prow Notification OFF'
         } else {
             statusBar.text = 'Prow Notification ON'
-            this.timerFlag = false;
+            this.timerFlag = true;
         }
     }
 

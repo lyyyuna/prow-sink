@@ -2,6 +2,8 @@ import * as vscode from 'vscode';
 
 import { ProwjobItemDataProvider } from './prowjobs_treeview_dataprovider';    
 
+const prowjobItemDataProvider = new ProwjobItemDataProvider();
+
 export function activate(context: vscode.ExtensionContext) {
 
 	let prowStatusBarItem: vscode.StatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 0);
@@ -9,8 +11,9 @@ export function activate(context: vscode.ExtensionContext) {
     prowStatusBarItem.command = 'extension.nofitifaction';
 	prowStatusBarItem.show();
 
-	const prowjobItemDataProvider = new ProwjobItemDataProvider();
 	vscode.window.registerTreeDataProvider('prow-jobs', prowjobItemDataProvider);
+    prowjobItemDataProvider.startQueringLoop();
+    
 	let disposable = vscode.commands.registerCommand('extension.refresh', () => prowjobItemDataProvider.refresh());
     let disposable2 = vscode.commands.registerCommand('extension.changeprview', () => prowjobItemDataProvider.changePresubmitJobView());
     let disposable3 = vscode.commands.registerCommand('extension.nofitifaction', () => prowjobItemDataProvider.switchNofication(prowStatusBarItem));
@@ -23,4 +26,6 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(prowStatusBarItem);
 }
 
-export function deactivate() {}
+export function deactivate() {
+    prowjobItemDataProvider.stopQueryingLoop();
+}

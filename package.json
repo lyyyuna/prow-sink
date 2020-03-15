@@ -3,7 +3,8 @@
 	"displayName": "Prow Sink",
 	"description": "Develop, deploy and debug Prow jobs",
     "version": "0.0.1",
-    "publisher": "lyyyuna",
+	"publisher": "lyyyuna",
+	"icon": "media/prow-logo.png",
     "repository": {
         "url": "https://github.com/lyyyuna/prow-sink"
     },

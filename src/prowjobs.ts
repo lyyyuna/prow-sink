@@ -63,7 +63,8 @@ export class ProwJobs {
                 if (this._focusedJobs.has(pj.spec?.job) || this._focusedRepos.has(repo) == true) {
                     // metadata.name
                     let uniqueName = pj.metadata?.name || '';
-                    allFocusedProwJobs.set(uniqueName, pj);
+                    // use uid+state as key
+                    allFocusedProwJobs.set(uniqueName+pj.status?.state, pj);
 
                     // job name
                     let jobName = pj.spec?.job;
