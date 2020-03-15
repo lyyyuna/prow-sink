@@ -16,13 +16,18 @@ export class ProwjobItemDataProvider implements vscode.TreeDataProvider<ProwItem
     private oldFocusedJobs: Map<string, any> = new Map;
 
     private timer: any;
+    private timerFlag: boolean = false;
 
 	constructor() {
         this.data = [];
-        this.timer = null;
+        this.timer = setInterval((function(self) {         
+            return function() {   
+                self.refresh(); 
+            }
+        })(this), 15000); // 20 seconds
 	}
 
-	async refresh(noti: boolean) {
+	async refresh() {
         // reset
         this.presubmitsrepo = new Array;
         this.presubmitPRViewRepo = new Array;
@@ -105,7 +110,8 @@ export class ProwjobItemDataProvider implements vscode.TreeDataProvider<ProwItem
 
         // check if we need to trigger notifications
         let diffJobs = this.getDiffJobs(focusedJobs)
-        if (noti == true) {
+        // whether to notifify when refreshing...
+        if (this.timerFlag == true) {
             this.notification(diffJobs);
         }
 
@@ -113,17 +119,12 @@ export class ProwjobItemDataProvider implements vscode.TreeDataProvider<ProwItem
     }
 
     switchNofication(statusBar: any) {
-        if (this.timer != null) {
-            clearInterval(this.timer);
-            this.timer = null;
+        if (this.timerFlag != false) {
+            this.timerFlag = true;
             statusBar.text = 'Prow Notification OFF'
         } else {
-            this.timer = setInterval((function(self) {         
-                return function() {   
-                    self.refresh(true); 
-                }
-            })(this), 15000); // 20 seconds
             statusBar.text = 'Prow Notification ON'
+            this.timerFlag = false;
         }
     }
 

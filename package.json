@@ -2,7 +2,11 @@
 	"name": "prow-sink",
 	"displayName": "Prow Sink",
 	"description": "Develop, deploy and debug Prow jobs",
-	"version": "0.0.1",
+    "version": "0.0.1",
+    "publisher": "lyyyuna",
+    "repository": {
+        "url": "https://github.com/lyyyuna/prow-sink"
+    },
 	"engines": {
 		"vscode": "^1.43.0"
 	},

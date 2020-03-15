@@ -11,7 +11,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const prowjobItemDataProvider = new ProwjobItemDataProvider();
 	vscode.window.registerTreeDataProvider('prow-jobs', prowjobItemDataProvider);
-	let disposable = vscode.commands.registerCommand('extension.refresh', () => prowjobItemDataProvider.refresh(false));
+	let disposable = vscode.commands.registerCommand('extension.refresh', () => prowjobItemDataProvider.refresh());
     let disposable2 = vscode.commands.registerCommand('extension.changeprview', () => prowjobItemDataProvider.changePresubmitJobView());
     let disposable3 = vscode.commands.registerCommand('extension.nofitifaction', () => prowjobItemDataProvider.switchNofication(prowStatusBarItem));
 
