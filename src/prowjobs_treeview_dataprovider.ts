@@ -170,6 +170,7 @@ export class ProwjobItemDataProvider implements vscode.TreeDataProvider<ProwItem
             }
             diffJobs.push(focusedJobs.get(j));
         }
+        this.oldFocusedJobs = focusedJobs;
         return diffJobs;
     }
 
