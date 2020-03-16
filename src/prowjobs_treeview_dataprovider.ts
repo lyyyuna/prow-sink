@@ -90,7 +90,8 @@ export class ProwjobItemDataProvider implements vscode.TreeDataProvider<ProwItem
                 let jobs: Array<any> = repo.get(j)
                 let postsubmitjobs: Array<ProwItem> = new Array;
                 for (let pj of jobs) {
-                    postsubmitjobs.push( new ProwItem( pj.status?.startTime + ' ' + pj.status?.state ) )
+                    let startTime = new Date(pj.status?.startTime).toLocaleString();
+                    postsubmitjobs.push( new ProwItem( startTime + ' ' + pj.status?.state ) )
                 }
                 reposjob.push( new ProwItem( j, postsubmitjobs ) )
             }
@@ -105,7 +106,8 @@ export class ProwjobItemDataProvider implements vscode.TreeDataProvider<ProwItem
                 let jobs: Array<any> = repo.get(j)
                 let periodicjobs: Array<ProwItem> = new Array;
                 for (let pj of jobs) {
-                    periodicjobs.push( new ProwItem( pj.status?.startTime + ' ' + pj.status?.state ) )
+                    let startTime = new Date(pj.status?.startTime).toLocaleString();
+                    periodicjobs.push( new ProwItem( startTime + ' ' + pj.status?.state ) )
                 }
                 reposjob.push( new ProwItem( j, periodicjobs ) )
             }
@@ -143,12 +145,24 @@ export class ProwjobItemDataProvider implements vscode.TreeDataProvider<ProwItem
     }
 
     notification(jobs: Array<any>) {
-        for (let pj of jobs) {
+        for (let i=0; i<jobs.length; i++) {
+            // show at least 10 messages every loop
+            if (i > 10) {
+                continue;
+            }
+            let pj = jobs[i];
             let state = pj.status?.state;
             let jobName = pj.spec?.job;
-            let startTime = pj.status?.startTime;
+            let startTime = new Date(pj.status?.startTime).toLocaleString();
+            let jobType = pj.spec?.type;
             if (state != ProwJobState.PENDING) {
-                vscode.window.showInformationMessage( state + ' ' + jobName + '\n ' + startTime);
+                let message: string;
+                if (jobType == 'presubmit') {
+                    message = state + ' ' + pj.spec?.refs?.pulls[0].number + ' ' + jobName + '\n ' + startTime;
+                } else {
+                    message = state + ' ' + jobName + '\n ' + startTime;
+                }
+                vscode.window.showInformationMessage( message );
             }
         }
     }
