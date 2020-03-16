@@ -31,7 +31,7 @@ export class ProwJobs {
         this.getConfigurations();
         let valid = /^(http|https):\/\/[^ "]+$/.test(this._serverUrl);
         if (valid == false) {
-            vscode.window.showErrorMessage('Invalid deck server address: ' + this._serverUrl);
+            // vscode.window.showErrorMessage('Invalid deck server address: ' + this._serverUrl);
             return [new Map, new Map, new Map, new Map, new Map];
         }
         let uri = `${this._serverUrl}/prowjobs.js?var=allBuilds&omit=annotations,labels,decoration_config,pod_spec`;
