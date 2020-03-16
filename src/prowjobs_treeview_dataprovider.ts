@@ -51,13 +51,13 @@ export class ProwjobItemDataProvider implements vscode.TreeDataProvider<ProwItem
         let [presubmitTree, presubmitPRViewTree, postsubmitTree, periodicTree, focusedJobs] = await prowJobsFromServer.getLatestJobsStatus();
 
         // let presubmitsrepo: Array<ProwItem> = new Array;
-        for (let r of presubmitTree.keys()) {
+        for (let r of Array.from(presubmitTree.keys()).sort()) {
             let repo: Map<string,any> = presubmitTree.get(r);
             let reposjob: Array<ProwItem> = new Array;
-            for (let j of repo.keys()) {
+            for (let j of Array.from(repo.keys()).sort()) {
                 let job: Map<string,any> = repo.get(j)
                 let jobspr: Array<ProwItem> = new Array;
-                for (let prnum of job.keys()) {
+                for (let prnum of Array.from(job.keys()).sort().reverse()) {
                     let pj = job.get(prnum)
                     jobspr.push(new ProwItem(prnum + ' ' + pj.status?.state))
                 }
@@ -67,13 +67,13 @@ export class ProwjobItemDataProvider implements vscode.TreeDataProvider<ProwItem
         }
 
         // another view oritention of presubmit jobs
-        for (let r of presubmitPRViewTree.keys()) {
+        for (let r of Array.from(presubmitPRViewTree.keys()).sort()) {
             let repo: Map<string,any> = presubmitPRViewTree.get(r);
             let repospr: Array<ProwItem> = new Array;
-            for (let p of repo.keys()) {
+            for (let p of Array.from(repo.keys()).sort().reverse()) {
                 let pr: Map<string,any> = repo.get(p);
                 let prsjob: Array<ProwItem> = new Array;
-                for (let j of pr.keys()) {
+                for (let j of Array.from(pr.keys()).sort().reverse()) {
                     let pj = pr.get(j);
                     prsjob.push(new ProwItem(j + ' ' + pj.status?.state));
                 }
