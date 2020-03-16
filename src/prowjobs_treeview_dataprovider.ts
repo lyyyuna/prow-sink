@@ -153,14 +153,15 @@ export class ProwjobItemDataProvider implements vscode.TreeDataProvider<ProwItem
             let pj = jobs[i];
             let state = pj.status?.state;
             let jobName = pj.spec?.job;
-            let startTime = new Date(pj.status?.startTime).toLocaleString();
+            let startTime = pj.status?.startTime
+            let showTime = new Date(pj.status?.completionTime || startTime).toLocaleString();
             let jobType = pj.spec?.type;
             if (state != ProwJobState.PENDING) {
                 let message: string;
                 if (jobType == 'presubmit') {
-                    message = state + ' ' + pj.spec?.refs?.pulls[0].number + ' ' + jobName + '\n ' + startTime;
+                    message = state + ' ' + pj.spec?.refs?.pulls[0].number + ' ' + jobName + '\n ' + showTime;
                 } else {
-                    message = state + ' ' + jobName + '\n ' + startTime;
+                    message = state + ' ' + jobName + '\n ' + showTime;
                 }
                 vscode.window.showInformationMessage( message );
             }
