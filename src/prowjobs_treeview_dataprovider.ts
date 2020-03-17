@@ -16,7 +16,7 @@ export class ProwjobItemDataProvider implements vscode.TreeDataProvider<ProwItem
     private oldFocusedJobs: Map<string, any> = new Map;
 
     private timer: any;
-    private timerFlag: boolean = false;
+    private timerFlag: boolean = true;
 
 	constructor() {
         this.data = [];
@@ -135,11 +135,11 @@ export class ProwjobItemDataProvider implements vscode.TreeDataProvider<ProwItem
     }
 
     switchNofication(statusBar: any) {
-        if (this.timerFlag != false) {
-            this.timerFlag = false;
+        if (statusBar.text == 'Prow Notification ON') {
             statusBar.text = 'Prow Notification OFF'
+            this.timerFlag = false;
         } else {
-            statusBar.text = 'Prow Notification ON'
+            statusBar.text = 'Prow Notification ON';
             this.timerFlag = true;
         }
     }

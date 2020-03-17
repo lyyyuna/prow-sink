@@ -7,7 +7,7 @@ const prowjobItemDataProvider = new ProwjobItemDataProvider();
 export function activate(context: vscode.ExtensionContext) {
 
 	let prowStatusBarItem: vscode.StatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 0);
-    prowStatusBarItem.text = 'Prow Notification OFF';
+    prowStatusBarItem.text = 'Prow Notification ON';
     prowStatusBarItem.command = 'extension.nofitifaction';
 	prowStatusBarItem.show();
 
