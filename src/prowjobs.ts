@@ -54,6 +54,9 @@ export class ProwJobs {
             for ( let i=0; i < prowjobs.length; i++ ) {
                 let pj = prowjobs[i];
                 let repo: string;
+                if (pj.spec?.extra_refs == undefined && pj.spec?.refs == undefined) {
+                    continue;
+                }
                 if (pj.spec?.type == 'periodic') {
                     repo = pj.spec?.extra_refs[0].org + '/' + pj.spec?.extra_refs[0].repo;
                 } else {
