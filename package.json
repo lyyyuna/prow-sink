@@ -2,7 +2,7 @@
 	"name": "prow-sink",
 	"displayName": "Prow Sink",
 	"description": "Develop, deploy and debug Prow jobs",
-	"version": "0.0.8",
+	"version": "0.0.9",
 	"publisher": "lyyyuna",
 	"icon": "media/prow-logo.png",
 	"repository": {
