@@ -171,7 +171,7 @@ export class ProwJobs {
 export enum ProwJobState {
     SUCCESS = 'success',
     PENDING = 'pending',
-    FAILED = 'failed',
+    FAILED = 'failure',
     ERROR = 'error',
     ABORTED = 'aborted'
 }
