@@ -52,6 +52,14 @@
 					"light": "resources/light/number.svg",
 					"dark": "resources/dark/number.svg"
 				}
+			},
+			{
+				"command": "extension.openbrowser",
+				"title": "View In Browser",
+				"icon": {
+					"light": "resources/light/document.svg",
+					"dark": "resources/dark/document.svg"
+				}
 			}
 		],
 		"menus": {
@@ -66,7 +74,14 @@
 					"when": "view == prow-jobs",
 					"group": "navigation"
 				}
-			]
+			],
+			"view/item/context": [
+				{
+					"command": "extension.openbrowser",
+					"when": "view == prow-jobs && viewItem == prowjobitem",
+					"group": "inline"
+				}
+			  ]
 		},
 		"configuration": {
 			"title": "Prow Jobs",

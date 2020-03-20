@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { ProwItem } from './prowjobs_treeview_item';
+import { ProwItem, ProwJobItem } from './prowjobs_treeview_item';
 import { ProwJobs, ProwJobState } from './prowjobs';
 
 export class ProwjobItemDataProvider implements vscode.TreeDataProvider<ProwItem> {
@@ -59,7 +59,8 @@ export class ProwjobItemDataProvider implements vscode.TreeDataProvider<ProwItem
                 let jobspr: Array<ProwItem> = new Array;
                 for (let prnum of Array.from(job.keys()).sort().reverse()) {
                     let pj = job.get(prnum)
-                    jobspr.push(new ProwItem(prnum + ' ' + pj.status?.state))
+                    // num+'' -> string
+                    jobspr.push(new ProwJobItem(prnum+'', pj, pj.status?.state))
                 }
                 reposjob.push( new ProwItem(j, jobspr) );
             }
@@ -75,7 +76,7 @@ export class ProwjobItemDataProvider implements vscode.TreeDataProvider<ProwItem
                 let prsjob: Array<ProwItem> = new Array;
                 for (let j of Array.from(pr.keys()).sort().reverse()) {
                     let pj = pr.get(j);
-                    prsjob.push(new ProwItem(j + ' ' + pj.status?.state));
+                    prsjob.push(new ProwJobItem(j, pj, pj.status?.state));
                 }
                 repospr.push( new ProwItem(p+'', prsjob) )
             }
@@ -91,7 +92,7 @@ export class ProwjobItemDataProvider implements vscode.TreeDataProvider<ProwItem
                 let postsubmitjobs: Array<ProwItem> = new Array;
                 for (let pj of jobs) {
                     let startTime = new Date(pj.status?.startTime).toLocaleString();
-                    postsubmitjobs.push( new ProwItem( startTime + ' ' + pj.status?.state ) )
+                    postsubmitjobs.push( new ProwJobItem( startTime, pj, pj.status?.state) )
                 }
                 reposjob.push( new ProwItem( j, postsubmitjobs ) )
             }
@@ -107,7 +108,7 @@ export class ProwjobItemDataProvider implements vscode.TreeDataProvider<ProwItem
                 let periodicjobs: Array<ProwItem> = new Array;
                 for (let pj of jobs) {
                     let startTime = new Date(pj.status?.startTime).toLocaleString();
-                    periodicjobs.push( new ProwItem( startTime + ' ' + pj.status?.state ) )
+                    periodicjobs.push( new ProwJobItem( startTime, pj, pj.status?.state ) )
                 }
                 reposjob.push( new ProwItem( j, periodicjobs ) )
             }
@@ -124,14 +125,15 @@ export class ProwjobItemDataProvider implements vscode.TreeDataProvider<ProwItem
                         new ProwItem('postsubmit', this.postsubmitrepo)]
         }
 
+        // refresh the treeview
+        this._onDidChangeTreeData.fire();
+
         // check if we need to trigger notifications
         let diffJobs = this.getDiffJobs(focusedJobs)
         // whether to notifify when refreshing...
         if (this.timerFlag == true) {
             this.notification(diffJobs);
         }
-
-		this._onDidChangeTreeData.fire();
     }
 
     switchNofication(statusBar: any) {
@@ -156,14 +158,20 @@ export class ProwjobItemDataProvider implements vscode.TreeDataProvider<ProwItem
             let startTime = pj.status?.startTime
             let showTime = new Date(pj.status?.completionTime || startTime).toLocaleString();
             let jobType = pj.spec?.type;
-            if (state != ProwJobState.PENDING) {
+            let jobLogUri = pj.status?.url || '';
+            if (state != ProwJobState.PENDING && jobLogUri != '') {
                 let message: string;
                 if (jobType == 'presubmit') {
                     message = state + ' ' + pj.spec?.refs?.pulls[0].number + ' ' + jobName + '\n ' + showTime;
                 } else {
                     message = state + ' ' + jobName + '\n ' + showTime;
                 }
-                vscode.window.showInformationMessage( message );
+                let selected = vscode.window.showInformationMessage( message, 'View In Browser' )
+                Promise.resolve(selected).then(data => {
+                    if (data == 'View In Browser') {
+                        vscode.env.openExternal(vscode.Uri.parse(jobLogUri));
+                    }
+                })
             }
         }
     }

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 
 import { ProwjobItemDataProvider } from './prowjobs_treeview_dataprovider';    
+import { ProwJobItem } from './prowjobs_treeview_item';
 
 const prowjobItemDataProvider = new ProwjobItemDataProvider();
 
@@ -19,7 +20,10 @@ export function activate(context: vscode.ExtensionContext) {
     let disposable3 = vscode.commands.registerCommand('extension.nofitifaction', () => prowjobItemDataProvider.switchNofication(prowStatusBarItem));
 
 
-
+    context.subscriptions.push(vscode.commands.registerCommand('extension.openbrowser', (node: ProwJobItem) => {
+        let jobLogUri = node.pj?.status?.url || '';
+        vscode.env.openExternal(vscode.Uri.parse(jobLogUri));
+    }));
     context.subscriptions.push(disposable);
     context.subscriptions.push(disposable2);
     context.subscriptions.push(disposable3);
