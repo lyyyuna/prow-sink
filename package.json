@@ -2,7 +2,7 @@
 	"name": "prow-sink",
 	"displayName": "Prow Sink",
 	"description": "Develop, deploy and debug Prow jobs",
-	"version": "0.0.10",
+	"version": "0.1.0",
 	"publisher": "lyyyuna",
 	"icon": "media/prow-logo.png",
 	"repository": {
@@ -81,7 +81,7 @@
 					"when": "view == prow-jobs && viewItem == prowjobitem",
 					"group": "inline"
 				}
-			  ]
+			]
 		},
 		"configuration": {
 			"title": "Prow Jobs",
